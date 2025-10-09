@@ -113,11 +113,18 @@ Simple Linkz is a single-user, self-hosted link dashboard with minimal dependenc
 
 **Favicon Proxy**: `/api/favicon` endpoint proxies favicon fetches to avoid CORS issues in browser
 
+**Base Path Support**: Optional `BASE_PATH` environment variable allows serving from subpaths (e.g., `/simple-linkz`) behind reverse proxies, similar to Sonarr/Radarr URL base configuration
+
 ## Environment Variables
 
 - `PORT` - Server port (default: 3000)
 - `SESSION_SECRET` - Custom session secret (auto-generated if not provided)
 - `DATA_DIR` - Custom data directory path (default: ./data)
+- `BASE_PATH` - Base URL path for reverse proxy subpath serving (default: empty/root)
+  - Example: `BASE_PATH=/simple-linkz` for serving at `yourdomain.com/simple-linkz`
+  - Server strips this prefix from incoming requests
+  - Automatically injects `window.BASE_PATH` into frontend HTML
+  - Leave empty to serve from root
 
 ## Important Notes
 

@@ -11,4 +11,7 @@ services:
     environment:
       - PORT=3000
       - SESSION_SECRET=${SESSION_SECRET:-}
+      # Optional: Set BASE_PATH if serving behind reverse proxy at a subpath
+      # Example: BASE_PATH=/simple-linkz for serving at yourdomain.com/simple-linkz
+      # - BASE_PATH=/simple-linkz
     restart: unless-stopped

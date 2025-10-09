@@ -56,6 +56,12 @@ docker run -d -p 8080:8080 \
   -v ./data:/data \
   jparkerweb/simple-linkz:latest
 
+# Run behind reverse proxy at a subpath (e.g., yourdomain.com/simple-linkz)
+docker run -d -p 3000:3000 \
+  -e BASE_PATH=/simple-linkz \
+  -v ./data:/data \
+  jparkerweb/simple-linkz:latest
+
 # Or build your own image
 docker build -t simple-linkz .
 docker run -d -p 3000:3000 -v ./data:/data simple-linkz
@@ -96,6 +102,9 @@ If you need to reset your username or password:
 - `PORT` - Server port (default: 3000)
 - `SESSION_SECRET` - Custom session secret (auto-generated if not provided)
 - `DATA_DIR` - Custom data directory path (default: ./data)
+- `BASE_PATH` - Base URL path for reverse proxy subpath serving (default: empty/root)
+  - Example: `BASE_PATH=/simple-linkz` allows serving at `yourdomain.com/simple-linkz`
+  - Leave empty to serve from root (e.g., `yourdomain.com/`)
 
 ## Data Storage
 

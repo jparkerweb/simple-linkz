@@ -1,3 +1,6 @@
+// Get base path from injected window variable (set by server if BASE_PATH env var is defined)
+const BASE_PATH = window.BASE_PATH || '';
+
 // State
 const state = {
   links: [],
@@ -9,12 +12,12 @@ const state = {
 // API Client
 const api = {
   async checkSetup() {
-    const res = await fetch('/api/setup/check');
+    const res = await fetch(`${BASE_PATH}/api/setup/check`);
     return res.json();
   },
 
   async setup(username, password) {
-    const res = await fetch('/api/setup', {
+    const res = await fetch(`${BASE_PATH}/api/setup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -23,7 +26,7 @@ const api = {
   },
 
   async login(username, password) {
-    const res = await fetch('/api/login', {
+    const res = await fetch(`${BASE_PATH}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -32,12 +35,12 @@ const api = {
   },
 
   async logout() {
-    const res = await fetch('/api/logout', { method: 'POST' });
+    const res = await fetch(`${BASE_PATH}/api/logout`, { method: 'POST' });
     return res.json();
   },
 
   async getLinks() {
-    const res = await fetch('/api/links');
+    const res = await fetch(`${BASE_PATH}/api/links`);
     if (res.status === 401) {
       showLoginScreen();
       return { links: [] };
@@ -46,7 +49,7 @@ const api = {
   },
 
   async saveLinks(links) {
-    const res = await fetch('/api/links', {
+    const res = await fetch(`${BASE_PATH}/api/links`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ links })
@@ -58,7 +61,7 @@ const api = {
   },
 
   async getPreferences() {
-    const res = await fetch('/api/preferences');
+    const res = await fetch(`${BASE_PATH}/api/preferences`);
     if (res.status === 401) {
       showLoginScreen();
       return { preferences: state.preferences };
@@ -67,7 +70,7 @@ const api = {
   },
 
   async savePreferences(preferences) {
-    const res = await fetch('/api/preferences', {
+    const res = await fetch(`${BASE_PATH}/api/preferences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ preferences })
@@ -79,12 +82,12 @@ const api = {
   },
 
   async exportData() {
-    const res = await fetch('/api/export');
+    const res = await fetch(`${BASE_PATH}/api/export`);
     return res.json();
   },
 
   async importData(data) {
-    const res = await fetch('/api/import', {
+    const res = await fetch(`${BASE_PATH}/api/import`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -93,7 +96,7 @@ const api = {
   },
 
   async getPageTitle(url) {
-    const res = await fetch(`/api/page-title?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`${BASE_PATH}/api/page-title?url=${encodeURIComponent(url)}`);
     if (res.ok) {
       return res.json();
     }
@@ -616,9 +619,9 @@ function hideLinkModal() {
 
 async function fetchFavicon(url) {
   try {
-    const response = await fetch(`/api/favicon?url=${encodeURIComponent(url)}`);
+    const response = await fetch(`${BASE_PATH}/api/favicon?url=${encodeURIComponent(url)}`);
     if (response.ok) {
-      const faviconUrl = `/api/favicon?url=${encodeURIComponent(url)}`;
+      const faviconUrl = `${BASE_PATH}/api/favicon?url=${encodeURIComponent(url)}`;
 
       // Validate favicon dimensions - reject if too small (1x1 pixels)
       const isValidSize = await new Promise((resolve) => {
@@ -755,7 +758,7 @@ async function handleResetCredentials() {
   }
 
   hideSettingsModal();
-  const res = await fetch('/api/reset-credentials', { method: 'POST' });
+  const res = await fetch(`${BASE_PATH}/api/reset-credentials`, { method: 'POST' });
   if (res.ok) {
     showSetupScreen();
   }

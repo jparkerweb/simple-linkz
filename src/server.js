@@ -6,6 +6,9 @@ const api = require('./api');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+// BASE_PATH allows serving from a subpath (e.g., /simple-linkz)
+// Remove trailing slash if present
+const BASE_PATH = (process.env.BASE_PATH || '').replace(/\/$/, '');
 
 // Content-Type mapping
 const CONTENT_TYPES = {
@@ -19,13 +22,20 @@ const CONTENT_TYPES = {
 };
 
 /**
- * Serve static files
+ * Serve static files (with BASE_PATH injection for HTML files)
  */
 async function serveStaticFile(filePath, res) {
   try {
-    const content = await fs.readFile(filePath);
+    let content = await fs.readFile(filePath);
     const ext = path.extname(filePath);
     const contentType = CONTENT_TYPES[ext] || 'application/octet-stream';
+
+    // Inject BASE_PATH into HTML files so frontend knows the base path
+    if (ext === '.html' && BASE_PATH) {
+      const basePath = BASE_PATH.replace(/'/g, "\\'"); // Escape single quotes
+      const scriptTag = `<script>window.BASE_PATH = '${basePath}';</script>`;
+      content = content.toString().replace('</head>', `${scriptTag}</head>`);
+    }
 
     res.writeHead(200, { 'Content-Type': contentType });
     res.end(content);
@@ -50,9 +60,20 @@ async function handleRequest(req, res) {
   let statusCode = 200;
 
   try {
+    let requestPath = req.url;
+
+    // Strip BASE_PATH from the beginning of the request URL
+    if (BASE_PATH && requestPath.startsWith(BASE_PATH)) {
+      requestPath = requestPath.substring(BASE_PATH.length) || '/';
+    }
+
     // API routes
-    if (req.url.startsWith('/api/')) {
+    if (requestPath.startsWith('/api/')) {
+      // Temporarily modify req.url for the API handler
+      const originalUrl = req.url;
+      req.url = requestPath;
       await api.route(req, res);
+      req.url = originalUrl;
       statusCode = res.statusCode;
       logRequest(req, statusCode);
       return;
@@ -60,10 +81,10 @@ async function handleRequest(req, res) {
 
     // Static file routes
     let filePath;
-    if (req.url === '/') {
+    if (requestPath === '/') {
       filePath = path.join(PUBLIC_DIR, 'index.html');
     } else {
-      filePath = path.join(PUBLIC_DIR, req.url);
+      filePath = path.join(PUBLIC_DIR, requestPath);
     }
 
     // Security: Prevent directory traversal
@@ -104,7 +125,12 @@ async function start() {
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`Simple Linkz server running on port ${PORT}`);
-      console.log(`Visit http://localhost:${PORT}`);
+      if (BASE_PATH) {
+        console.log(`Base path: ${BASE_PATH}`);
+        console.log(`Visit http://localhost:${PORT}${BASE_PATH}`);
+      } else {
+        console.log(`Visit http://localhost:${PORT}`);
+      }
     });
   } catch (error) {
     console.error('Failed to start server:', error);
