@@ -1,7 +1,9 @@
 version: '3.8'
 services:
   simple-linkz:
-    build: .
+    image: jparkerweb/simple-linkz:latest
+    # Or build locally:
+    # build: .
     ports:
       - "3000:3000"
     volumes:

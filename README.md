@@ -45,18 +45,19 @@ npm run dev
 ### Docker
 
 ```bash
-# Build image
-docker build -t simple-linkz .
-
-# Run container
-docker run -p 3000:3000 -v ./data:/data simple-linkz
+# Pull and run the latest image
+docker run -d -p 3000:3000 -v ./data:/data jparkerweb/simple-linkz:latest
 
 # Run with custom port and session secret
-docker run -p 8080:8080 \
+docker run -d -p 8080:8080 \
   -e PORT=8080 \
   -e SESSION_SECRET=your-secret-key \
   -v ./data:/data \
-  simple-linkz
+  jparkerweb/simple-linkz:latest
+
+# Or build your own image
+docker build -t simple-linkz .
+docker run -d -p 3000:3000 -v ./data:/data simple-linkz
 ```
 
 ### Docker Compose
