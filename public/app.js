@@ -739,6 +739,8 @@ function showSettingsModal() {
 
 function hideSettingsModal() {
   document.getElementById('settings-modal').classList.add('hidden');
+  // Reload the page to ensure all color changes take effect
+  window.location.reload();
 }
 
 async function handleLogout() {

@@ -69,6 +69,11 @@ async function isAuthenticated(req) {
  * Send JSON response
  */
 function sendJSON(res, statusCode, data) {
+  // Protect against double-sending responses
+  if (res.headersSent) {
+    console.error('[API] Attempted to send response after headers already sent');
+    return;
+  }
   res.writeHead(statusCode, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
 }
@@ -155,11 +160,13 @@ async function handleLogin(req, res) {
     const signedToken = auth.signCookie(token, secret);
 
     // Set cookie
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
-      'Set-Cookie': `${COOKIE_NAME}=${signedToken}; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800`
-    });
-    res.end(JSON.stringify({ success: true }));
+    if (!res.headersSent) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Set-Cookie': `${COOKIE_NAME}=${signedToken}; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800`
+      });
+      res.end(JSON.stringify({ success: true }));
+    }
   } catch (error) {
     console.error('Login error:', error);
     sendJSON(res, 500, { success: false, error: 'Internal server error' });
@@ -185,11 +192,13 @@ async function handleLogout(req, res) {
       }
     }
 
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
-      'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`
-    });
-    res.end(JSON.stringify({ success: true }));
+    if (!res.headersSent) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`
+      });
+      res.end(JSON.stringify({ success: true }));
+    }
   } catch (error) {
     console.error('Logout error:', error);
     sendJSON(res, 500, { success: false, error: 'Internal server error' });
@@ -209,11 +218,13 @@ async function handleResetCredentials(req, res) {
     await storage.setUser(null, null);
     await storage.saveSessions({});
 
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
-      'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`
-    });
-    res.end(JSON.stringify({ success: true }));
+    if (!res.headersSent) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`
+      });
+      res.end(JSON.stringify({ success: true }));
+    }
   } catch (error) {
     console.error('Reset credentials error:', error);
     sendJSON(res, 500, { success: false, error: 'Internal server error' });
@@ -363,11 +374,13 @@ async function handleExport(req, res) {
     const links = await storage.getLinks();
     const preferences = await storage.getPreferences();
 
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
-      'Content-Disposition': 'attachment; filename=simple-linkz-export.json'
-    });
-    res.end(JSON.stringify({ links, preferences }, null, 2));
+    if (!res.headersSent) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'attachment; filename=simple-linkz-export.json'
+      });
+      res.end(JSON.stringify({ links, preferences }, null, 2));
+    }
   } catch (error) {
     console.error('Export error:', error);
     sendJSON(res, 500, { error: 'Internal server error' });
@@ -424,6 +437,8 @@ async function handlePageTitle(req, res) {
     return sendJSON(res, 401, { error: 'Unauthorized' });
   }
 
+  let responseSent = false;
+
   try {
     const parsedUrl = url.parse(req.url, true);
     const targetUrl = parsedUrl.query.url;
@@ -439,10 +454,13 @@ async function handlePageTitle(req, res) {
     // Try to fetch the page and extract title
     const protocol = urlObj.protocol === 'https:' ? https : require('http');
 
-    protocol.get(targetUrl, { timeout: 10000 }, (pageRes) => {
+    const request = protocol.get(targetUrl, { timeout: 10000 }, (pageRes) => {
+      if (responseSent) return;
+
       if (pageRes.statusCode === 200) {
         let html = '';
         pageRes.on('data', chunk => {
+          if (responseSent) return;
           html += chunk.toString();
           // Stop after we have enough to find the title (first 10KB)
           if (html.length > 10000) {
@@ -451,6 +469,8 @@ async function handlePageTitle(req, res) {
         });
 
         pageRes.on('end', () => {
+          if (responseSent) return;
+          responseSent = true;
           // Try to extract title from HTML
           const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
           if (titleMatch && titleMatch[1]) {
@@ -462,18 +482,32 @@ async function handlePageTitle(req, res) {
         });
       } else {
         // Fallback to domain name on error
+        if (responseSent) return;
+        responseSent = true;
         return sendJSON(res, 200, { title: domain });
       }
-    }).on('error', () => {
+    });
+
+    request.on('error', () => {
+      if (responseSent) return;
+      responseSent = true;
       // Fallback to domain name on error
       return sendJSON(res, 200, { title: domain });
-    }).on('timeout', () => {
+    });
+
+    request.on('timeout', () => {
+      if (responseSent) return;
+      responseSent = true;
+      request.destroy();
       // Fallback to domain name on timeout
       return sendJSON(res, 200, { title: domain });
     });
   } catch (error) {
     console.error('[PAGE TITLE API] Error:', error);
+    if (responseSent) return;
+    responseSent = true;
     try {
+      const parsedUrl = url.parse(req.url, true);
       const urlObj = new URL(parsedUrl.query.url);
       const domain = urlObj.hostname.replace(/^www\./, '');
       return sendJSON(res, 200, { title: domain });
@@ -487,10 +521,15 @@ async function handlePageTitle(req, res) {
  * Handle GET /api/favicon?url=...
  */
 async function handleFavicon(req, res) {
+  let responseSent = false;
+
   if (!await isAuthenticated(req)) {
     console.log('[FAVICON API] Unauthorized request');
-    res.writeHead(401);
-    return res.end();
+    if (!res.headersSent) {
+      res.writeHead(401);
+      res.end();
+    }
+    return;
   }
 
   try {
@@ -501,8 +540,11 @@ async function handleFavicon(req, res) {
 
     if (!targetUrl) {
       console.log('[FAVICON API] No URL provided');
-      res.writeHead(400);
-      return res.end();
+      if (!res.headersSent) {
+        res.writeHead(400);
+        res.end();
+      }
+      return;
     }
 
     // Parse domain from URL
@@ -520,6 +562,8 @@ async function handleFavicon(req, res) {
     let succeeded = false;
 
     for (const faviconUrl of faviconUrls) {
+      if (responseSent) break;
+
       console.log('[FAVICON API] Trying:', faviconUrl);
       try {
         await new Promise((resolve, reject) => {
@@ -527,7 +571,7 @@ async function handleFavicon(req, res) {
           const protocol = faviconUrl.startsWith('https') ? https : require('http');
 
           const httpRequest = protocol.get(faviconUrl, { timeout: 5000 }, (faviconRes) => {
-            if (requestHandled) return;
+            if (requestHandled || responseSent) return;
             console.log('[FAVICON API] Response status:', faviconRes.statusCode);
 
             // Handle redirects (301, 302, 307, 308)
@@ -536,16 +580,19 @@ async function handleFavicon(req, res) {
               const redirectProtocol = faviconRes.headers.location.startsWith('https') ? https : require('http');
 
               const redirectRequest = redirectProtocol.get(faviconRes.headers.location, { timeout: 5000 }, (redirectRes) => {
-                if (requestHandled) return;
+                if (requestHandled || responseSent) return;
                 console.log('[FAVICON API] Redirect response status:', redirectRes.statusCode);
                 if (redirectRes.statusCode === 200) {
                   console.log('[FAVICON API] Success after redirect! Piping response');
                   requestHandled = true;
-                  res.writeHead(200, {
-                    'Content-Type': faviconUrl.includes('google.com') ? 'image/png' : 'image/x-icon',
-                    'Cache-Control': 'public, max-age=86400'
-                  });
-                  redirectRes.pipe(res);
+                  responseSent = true;
+                  if (!res.headersSent) {
+                    res.writeHead(200, {
+                      'Content-Type': faviconUrl.includes('google.com') ? 'image/png' : 'image/x-icon',
+                      'Cache-Control': 'public, max-age=86400'
+                    });
+                    redirectRes.pipe(res);
+                  }
                   succeeded = true;
                   resolve();
                 } else {
@@ -554,11 +601,11 @@ async function handleFavicon(req, res) {
                   reject(new Error('Redirect failed'));
                 }
               }).on('error', (err) => {
-                if (requestHandled) return;
+                if (requestHandled || responseSent) return;
                 requestHandled = true;
                 reject(err);
               }).on('timeout', () => {
-                if (requestHandled) return;
+                if (requestHandled || responseSent) return;
                 console.log('[FAVICON API] Redirect timeout');
                 requestHandled = true;
                 redirectRequest.destroy();
@@ -570,11 +617,14 @@ async function handleFavicon(req, res) {
             if (faviconRes.statusCode === 200) {
               console.log('[FAVICON API] Success! Piping response');
               requestHandled = true;
-              res.writeHead(200, {
-                'Content-Type': faviconUrl.includes('google.com') ? 'image/png' : 'image/x-icon',
-                'Cache-Control': 'public, max-age=86400'
-              });
-              faviconRes.pipe(res);
+              responseSent = true;
+              if (!res.headersSent) {
+                res.writeHead(200, {
+                  'Content-Type': faviconUrl.includes('google.com') ? 'image/png' : 'image/x-icon',
+                  'Cache-Control': 'public, max-age=86400'
+                });
+                faviconRes.pipe(res);
+              }
               succeeded = true;
               resolve();
             } else {
@@ -583,12 +633,12 @@ async function handleFavicon(req, res) {
               reject(new Error('Favicon not found'));
             }
           }).on('error', (err) => {
-            if (requestHandled) return;
+            if (requestHandled || responseSent) return;
             console.log('[FAVICON API] Error:', err.message);
             requestHandled = true;
             reject(err);
           }).on('timeout', () => {
-            if (requestHandled) return;
+            if (requestHandled || responseSent) return;
             console.log('[FAVICON API] Timeout');
             requestHandled = true;
             httpRequest.destroy();
@@ -601,21 +651,28 @@ async function handleFavicon(req, res) {
           break;
         }
       } catch (error) {
+        if (responseSent) break;
         console.log('[FAVICON API] Failed, trying next source');
         // Try next URL
         continue;
       }
     }
 
-    if (!succeeded) {
+    if (!succeeded && !responseSent) {
       console.log('[FAVICON API] All sources failed, returning 404');
-      res.writeHead(404);
-      res.end();
+      responseSent = true;
+      if (!res.headersSent) {
+        res.writeHead(404);
+        res.end();
+      }
     }
   } catch (error) {
     console.log('[FAVICON API] Unexpected error:', error);
-    res.writeHead(404);
-    res.end();
+    if (!responseSent && !res.headersSent) {
+      responseSent = true;
+      res.writeHead(404);
+      res.end();
+    }
   }
 }
 
@@ -680,8 +737,10 @@ async function route(req, res) {
   }
 
   // 404
-  res.writeHead(404);
-  res.end();
+  if (!res.headersSent) {
+    res.writeHead(404);
+    res.end();
+  }
 }
 
 module.exports = { route };
