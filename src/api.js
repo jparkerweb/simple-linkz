@@ -163,7 +163,7 @@ async function handleLogin(req, res) {
     if (!res.headersSent) {
       res.writeHead(200, {
         'Content-Type': 'application/json',
-        'Set-Cookie': `${COOKIE_NAME}=${signedToken}; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800`
+        'Set-Cookie': `${COOKIE_NAME}=${signedToken}; HttpOnly; SameSite=Lax; Path=/; Max-Age=604800`
       });
       res.end(JSON.stringify({ success: true }));
     }
@@ -195,7 +195,7 @@ async function handleLogout(req, res) {
     if (!res.headersSent) {
       res.writeHead(200, {
         'Content-Type': 'application/json',
-        'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`
+        'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`
       });
       res.end(JSON.stringify({ success: true }));
     }
@@ -221,7 +221,7 @@ async function handleResetCredentials(req, res) {
     if (!res.headersSent) {
       res.writeHead(200, {
         'Content-Type': 'application/json',
-        'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`
+        'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`
       });
       res.end(JSON.stringify({ success: true }));
     }

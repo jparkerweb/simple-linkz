@@ -102,7 +102,7 @@ async function start() {
     // Create HTTP server
     const server = http.createServer(handleRequest);
 
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`Simple Linkz server running on port ${PORT}`);
       console.log(`Visit http://localhost:${PORT}`);
     });
