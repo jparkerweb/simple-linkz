@@ -30,11 +30,23 @@ async function serveStaticFile(filePath, res) {
     const ext = path.extname(filePath);
     const contentType = CONTENT_TYPES[ext] || 'application/octet-stream';
 
-    // Inject BASE_PATH into HTML files so frontend knows the base path
-    if (ext === '.html' && BASE_PATH) {
-      const basePath = BASE_PATH.replace(/'/g, "\\'"); // Escape single quotes
-      const scriptTag = `<script>window.BASE_PATH = '${basePath}';</script>`;
-      content = content.toString().replace('</head>', `${scriptTag}</head>`);
+    // Inject BASE_PATH into HTML files and rewrite asset URLs
+    if (ext === '.html') {
+      let html = content.toString();
+
+      if (BASE_PATH) {
+        const basePath = BASE_PATH.replace(/'/g, "\\'"); // Escape single quotes
+        const scriptTag = `<script>window.BASE_PATH = '${basePath}';</script>`;
+        html = html.replace('</head>', `${scriptTag}</head>`);
+
+        // Rewrite asset URLs to include BASE_PATH
+        html = html.replace(/href="([^"]*\.css)"/g, `href="${BASE_PATH}/$1"`);
+        html = html.replace(/src="([^"]*\.js)"/g, `src="${BASE_PATH}/$1"`);
+        html = html.replace(/href="([^"]*\.png)"/g, `href="${BASE_PATH}/$1"`);
+        html = html.replace(/href="([^"]*\.ico)"/g, `href="${BASE_PATH}/$1"`);
+      }
+
+      content = html;
     }
 
     res.writeHead(200, { 'Content-Type': contentType });

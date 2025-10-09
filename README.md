@@ -15,6 +15,7 @@ A lightweight, self-hosted web application for curating and managing your freque
 - 🪶 **Lightweight** - Minimal dependencies, fast and simple
 - 🎭 **Custom Page Titles** - Personalize your dashboard title
 - 🌐 **Auto Favicons** - Automatically fetches favicons for your links
+- 🔀 **Reverse Proxy Support** - Built-in BASE_PATH support for serving from subpaths
 
 ## Quick Start
 
@@ -99,12 +100,15 @@ If you need to reset your username or password:
 
 ## Environment Variables
 
-- `PORT` - Server port (default: 3000)
+- `PORT` - Server port (default: `3000`)
 - `SESSION_SECRET` - Custom session secret (auto-generated if not provided)
-- `DATA_DIR` - Custom data directory path (default: ./data)
+- `DATA_DIR` - Custom data directory path (default: `./data`)
 - `BASE_PATH` - Base URL path for reverse proxy subpath serving (default: empty/root)
-  - Example: `BASE_PATH=/simple-linkz` allows serving at `yourdomain.com/simple-linkz`
-  - Leave empty to serve from root (e.g., `yourdomain.com/`)
+  - Allows serving from a subpath like Sonarr/Radarr URL base configuration
+  - Example: `BASE_PATH=/simple-linkz` serves at `yourdomain.com/simple-linkz`
+  - Leave empty (default) to serve from root: `yourdomain.com/`
+  - **Important**: Configure this when using reverse proxy custom locations/subpaths
+  - The server automatically handles path stripping and asset URL rewriting
 
 ## Data Storage
 
@@ -457,6 +461,7 @@ Simple Linkz uses a modular backend architecture with native Node.js (no Express
 - Routes static files from `/public`
 - Routes API requests to `api.js`
 - Configurable port via `PORT` environment variable
+- Handles `BASE_PATH` prefix stripping and asset URL rewriting
 
 **storage.js** - Data persistence layer
 - Single JSON file storage (`/data/data.json`)
@@ -551,11 +556,38 @@ Simple Linkz uses a modular backend architecture with native Node.js (no Express
 - Input validation on all API endpoints
 
 ### Deployment Recommendations
-- Run behind reverse proxy (nginx, Caddy)
+- Run behind reverse proxy (nginx, Caddy, Nginx Proxy Manager)
 - Use HTTPS in production
 - Set custom `SESSION_SECRET` environment variable
+- Configure `BASE_PATH` if serving from a subpath (e.g., `/simple-linkz`)
 - Regular backups of `/data/data.json`
 - Keep dependencies updated
+
+### Reverse Proxy Configuration
+
+**Nginx Proxy Manager (Custom Locations):**
+1. Create proxy host for your domain
+2. Add custom location (e.g., `/simple-linkz`)
+3. Forward to: `http://container-name:3000`
+4. Set container environment: `BASE_PATH=/simple-linkz`
+5. No additional nginx configuration needed
+
+**Nginx (Manual Configuration):**
+```nginx
+location /simple-linkz {
+    proxy_pass http://simple-linkz:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+Then set `BASE_PATH=/simple-linkz` in container environment.
+
+**Subdomain (Recommended Alternative):**
+If you don't need subpath serving, use a subdomain instead:
+- `simple-linkz.yourdomain.com` → No BASE_PATH needed
+- Simpler configuration, no path prefix handling
 
 ## Troubleshooting
 
@@ -599,6 +631,12 @@ npm run watch:css
 - Ensure JSON file is valid
 - Check that file contains `links` array
 - Verify file size is reasonable (<10MB)
+
+**Reverse proxy subpath not working**
+- Set `BASE_PATH` environment variable (e.g., `BASE_PATH=/simple-linkz`)
+- Ensure reverse proxy forwards the full path including prefix
+- Check container logs for incoming request paths
+- Verify reverse proxy points to correct container name and port
 
 ### Docker Issues
 

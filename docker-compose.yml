@@ -13,5 +13,6 @@ services:
       - SESSION_SECRET=${SESSION_SECRET:-}
       # Optional: Set BASE_PATH if serving behind reverse proxy at a subpath
       # Example: BASE_PATH=/simple-linkz for serving at yourdomain.com/simple-linkz
+      # Leave commented (default) to serve from root: yourdomain.com/
       # - BASE_PATH=/simple-linkz
     restart: unless-stopped

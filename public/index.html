@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simple Linkz</title>
-  <link rel="icon" type="image/png" href="favicon.png" id="favicon">
-  <link rel="stylesheet" href="styles.css" id="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="styles.css">
   <style>
     :root {
       --accent-color: #3B82F6;
@@ -280,19 +280,6 @@
     </div>
   </div>
 
-  <script>
-    // Update asset paths based on BASE_PATH (injected by server)
-    if (window.BASE_PATH) {
-      document.getElementById('favicon').href = window.BASE_PATH + '/favicon.png';
-      document.getElementById('stylesheet').href = window.BASE_PATH + '/styles.css';
-    }
-  </script>
-  <script src="app.js" id="app-script"></script>
-  <script>
-    // Update app.js script src if BASE_PATH is set
-    if (window.BASE_PATH) {
-      document.getElementById('app-script').src = window.BASE_PATH + '/app.js';
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
