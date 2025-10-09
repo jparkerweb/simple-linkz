@@ -1,6 +1,7 @@
-# Simple Linkz 🖇️
-
+# 🖇️ Simple Linkz
 A lightweight, self-hosted web application for curating and managing your frequently visited links. Built with vanilla JavaScript, Node.js, and Tailwind CSS.
+
+<img src="./.readme/simple-linkz.jpg" height="250" />
 
 ## Features
 
@@ -137,6 +138,8 @@ simple-linkz/
 ```
 
 ## Usage Guide
+
+<img src="./.readme/screen-shot-1.jpg" height="250" /><img src="./.readme/screen-shot-2.jpg" height="250" /><img src="./.readme/screen-shot-3.jpg" height="250" />
 
 ### Managing Links
 
