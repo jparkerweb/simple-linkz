@@ -28,6 +28,7 @@ EXPOSE 3000
 # Set environment
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV DATA_DIR=/data
 
 # Start server
 CMD ["node", "src/server.js"]
