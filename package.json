@@ -1,0 +1,30 @@
+{
+  "name": "simple-linkz",
+  "version": "1.0.0",
+  "description": "Simple Dashboard Page for common Linkz to Pages you visit Daily",
+  "main": "src/server.js",
+  "scripts": {
+    "setup": "npx rimraf node_modules package-lock.json && npm install",
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/styles.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./public/styles.css --watch",
+    "start": "node src/server.js",
+    "dev": "npm run build:css && npm run start",
+    "docker:build": "docker build -t simple-linkz .",
+    "docker:dev": "docker run --name simple-linkz -it --rm -p 3000:3000 -v ./data:/data simple-linkz",
+    "docker:run": "docker run --name simple-linkz -p 3000:3000 -v ./data:/data simple-linkz",
+    "docker:stop": "docker stop simple-linkz"
+  },
+  "keywords": [
+    "links",
+    "dashboard",
+    "bookmarks"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.18"
+  }
+}
