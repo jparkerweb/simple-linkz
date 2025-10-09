@@ -1,9 +1,6 @@
 name: Build and Push Docker Image
 
 on:
-  # Trigger on pushes to main branch
-  push:
-    branches: [ main, master ]
   # Trigger on new releases/tags
   release:
     types: [ published ]
@@ -46,8 +43,8 @@ jobs:
       with:
         images: ${{ env.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
-          # set latest tag for main/master branch only
-          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+          # set latest tag for all releases
+          type=raw,value=latest
           # set full version tag for releases (1.0.0, 1.0.1, etc.)
           type=semver,pattern={{version}}
 
@@ -57,8 +54,8 @@ jobs:
       with:
         images: ${{ github.repository }}
         tags: |
-          # set latest tag for main/master branch only
-          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+          # set latest tag for all releases
+          type=raw,value=latest
           # set full version tag for releases (1.0.0, 1.0.1, etc.)
           type=semver,pattern={{version}}
 
