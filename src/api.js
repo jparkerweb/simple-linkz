@@ -577,9 +577,22 @@ async function handleFavicon(req, res) {
             // Handle redirects (301, 302, 307, 308)
             if (faviconRes.statusCode >= 300 && faviconRes.statusCode < 400 && faviconRes.headers.location) {
               console.log('[FAVICON API] Following redirect to:', faviconRes.headers.location);
-              const redirectProtocol = faviconRes.headers.location.startsWith('https') ? https : require('http');
 
-              const redirectRequest = redirectProtocol.get(faviconRes.headers.location, { timeout: 5000 }, (redirectRes) => {
+              // Convert relative redirects to absolute URLs
+              let redirectUrl;
+              if (faviconRes.headers.location.startsWith('http://') || faviconRes.headers.location.startsWith('https://')) {
+                // Absolute URL
+                redirectUrl = faviconRes.headers.location;
+              } else {
+                // Relative URL - resolve it against the original URL
+                const originalUrl = new URL(faviconUrl);
+                redirectUrl = new URL(faviconRes.headers.location, originalUrl.origin).href;
+              }
+
+              console.log('[FAVICON API] Resolved redirect URL:', redirectUrl);
+              const redirectProtocol = redirectUrl.startsWith('https') ? https : require('http');
+
+              const redirectRequest = redirectProtocol.get(redirectUrl, { timeout: 5000 }, (redirectRes) => {
                 if (requestHandled || responseSent) return;
                 console.log('[FAVICON API] Redirect response status:', redirectRes.statusCode);
                 if (redirectRes.statusCode === 200) {
