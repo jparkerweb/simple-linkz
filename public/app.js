@@ -207,17 +207,33 @@ async function loadLinks() {
   const result = await api.getLinks();
   state.links = result.links || [];
 
-  // Fetch favicons for links that don't have them yet (background operation)
-  let needsSave = false;
-  for (const link of state.links) {
-    if (!link.faviconUrl) {
-      const faviconUrl = await fetchFavicon(link.url);
-      if (faviconUrl) {
-        link.faviconUrl = faviconUrl;
-        needsSave = true;
-      }
-    }
+  // Fetch favicons in the background without blocking render
+  fetchMissingFavicons();
+}
+
+// Fetch favicons for links that don't have them yet (truly async background operation)
+async function fetchMissingFavicons() {
+  const linksNeedingFavicons = state.links.filter(link => !link.faviconUrl);
+  
+  if (linksNeedingFavicons.length === 0) {
+    return;
   }
+
+  let needsSave = false;
+  
+  // Fetch favicons in parallel with a concurrency limit
+  const fetchPromises = linksNeedingFavicons.map(async (link) => {
+    const faviconUrl = await fetchFavicon(link.url);
+    if (faviconUrl) {
+      link.faviconUrl = faviconUrl;
+      needsSave = true;
+      // Re-render to show the newly loaded favicon
+      renderLinks();
+    }
+  });
+
+  // Wait for all favicon fetches to complete
+  await Promise.all(fetchPromises);
 
   // Save updated links if we fetched any new favicons
   if (needsSave) {
