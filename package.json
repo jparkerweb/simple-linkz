@@ -1,6 +1,6 @@
 {
   "name": "simple-linkz",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Simple Dashboard Page for common Linkz to Pages you visit Daily",
   "main": "src/server.js",
   "scripts": {

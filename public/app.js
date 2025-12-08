@@ -120,6 +120,70 @@ const THEME_PRESETS = {
     text: '#831843',
     textMuted: 'rgba(131, 24, 67, 0.6)',
     border: 'rgba(0, 0, 0, 0.08)'
+  },
+  sapphire: {
+    name: 'Sapphire',
+    surface: '#1e3a5f',
+    surfaceHover: '#264b7a',
+    text: '#e0efff',
+    textMuted: 'rgba(224, 239, 255, 0.6)',
+    border: 'rgba(255, 255, 255, 0.1)'
+  },
+  mint: {
+    name: 'Mint',
+    surface: '#ecfdf5',
+    surfaceHover: '#d1fae5',
+    text: '#064e3b',
+    textMuted: 'rgba(6, 78, 59, 0.6)',
+    border: 'rgba(0, 0, 0, 0.08)'
+  },
+  rose: {
+    name: 'Rose',
+    surface: '#500724',
+    surfaceHover: '#6b1030',
+    text: '#ffe4e6',
+    textMuted: 'rgba(255, 228, 230, 0.6)',
+    border: 'rgba(255, 255, 255, 0.1)'
+  },
+  storm: {
+    name: 'Storm',
+    surface: '#27273a',
+    surfaceHover: '#363652',
+    text: '#e2e2f0',
+    textMuted: 'rgba(226, 226, 240, 0.5)',
+    border: 'rgba(255, 255, 255, 0.08)'
+  },
+  sunset: {
+    name: 'Sunset',
+    surface: '#5c2d3b',
+    surfaceHover: '#7a3d50',
+    text: '#ffecd2',
+    textMuted: 'rgba(255, 236, 210, 0.6)',
+    border: 'rgba(255, 255, 255, 0.1)'
+  },
+  olive: {
+    name: 'Olive',
+    surface: '#3d3d2b',
+    surfaceHover: '#52523a',
+    text: '#f5f5dc',
+    textMuted: 'rgba(245, 245, 220, 0.6)',
+    border: 'rgba(255, 255, 255, 0.1)'
+  },
+  paper: {
+    name: 'Paper',
+    surface: '#fffef5',
+    surfaceHover: '#faf8e8',
+    text: '#1c1917',
+    textMuted: 'rgba(28, 25, 23, 0.5)',
+    border: 'rgba(0, 0, 0, 0.08)'
+  },
+  graphite: {
+    name: 'Graphite',
+    surface: '#2d2d2d',
+    surfaceHover: '#3d3d3d',
+    text: '#d4d4d4',
+    textMuted: 'rgba(212, 212, 212, 0.5)',
+    border: 'rgba(255, 255, 255, 0.08)'
   }
 };
 

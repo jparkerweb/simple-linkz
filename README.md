@@ -7,15 +7,20 @@ A lightweight, self-hosted web application for curating and managing your freque
 
 - ✨ **Beautiful Dashboard** - Choose between grid, list, or cards layout
 - 🔐 **Secure Authentication** - Password-hashed login with session management
-- 🎨 **Customizable Themes** - Dark/light mode with 5 accent colors and custom backgrounds
+- 🎨 **Customizable Themes** - Dark/light mode with 8 accent colors and 20 background colors
 - 🔍 **Search & Filter** - Quickly find links as your collection grows
+- 🏷️ **Tags** - Organize links with custom colored tags and filter by tag
 - 🎯 **Drag & Drop** - Reorder links easily with visual feedback
+- 🎭 **Icon Picker** - Choose from Material Icons, Font Awesome, or upload custom icons
 - 💾 **Import/Export** - Backup and restore your links in JSON format
 - 🐳 **Docker Ready** - Easy deployment with Docker or docker-compose
 - 🪶 **Lightweight** - Minimal dependencies, fast and simple
 - 🎭 **Custom Page Titles** - Personalize your dashboard title
 - 🌐 **Auto Favicons** - Automatically fetches favicons for your links
 - 🔀 **Reverse Proxy Support** - Built-in BASE_PATH support for serving from subpaths
+- 📱 **PWA Support** - Install as an app on mobile devices ("Add to Home Screen")
+- 🛡️ **Security Hardening** - Rate limiting and CSRF protection
+- ⌨️ **Keyboard Shortcuts** - Press `/` to quickly focus search
 
 ## Quick Start
 
@@ -451,6 +456,138 @@ Content-Type: image/*
 (binary image data)
 ```
 
+### Tags
+
+> **Note**: All tag endpoints require `X-CSRF-Token` header for mutations.
+
+**Get All Tags**
+```http
+GET /api/tags
+
+Response: 200 OK
+{
+  "tags": [
+    { "id": "uuid", "name": "Work", "color": "#3B82F6" }
+  ]
+}
+```
+
+**Create Tag**
+```http
+POST /api/tags
+Content-Type: application/json
+X-CSRF-Token: your-csrf-token
+
+{
+  "name": "Work",
+  "color": "#3B82F6"
+}
+
+Response: 201 Created
+{
+  "tag": { "id": "uuid", "name": "Work", "color": "#3B82F6" }
+}
+```
+
+**Update Tag**
+```http
+PUT /api/tags/:id
+Content-Type: application/json
+X-CSRF-Token: your-csrf-token
+
+{
+  "name": "Updated Name",
+  "color": "#10B981"
+}
+
+Response: 200 OK
+{
+  "tag": { "id": "uuid", "name": "Updated Name", "color": "#10B981" }
+}
+```
+
+**Delete Tag**
+```http
+DELETE /api/tags/:id
+X-CSRF-Token: your-csrf-token
+
+Response: 200 OK
+{
+  "success": true
+}
+```
+
+**Bulk Tag Operation**
+```http
+POST /api/links/bulk-tag
+Content-Type: application/json
+X-CSRF-Token: your-csrf-token
+
+{
+  "linkIds": ["uuid1", "uuid2"],
+  "operation": "add|remove",
+  "tagIds": ["tag-uuid1", "tag-uuid2"]
+}
+
+Response: 200 OK
+{
+  "success": true
+}
+```
+
+### Custom Icons
+
+**Get Custom Icons**
+```http
+GET /api/icons
+
+Response: 200 OK
+{
+  "icons": [
+    { "id": "uuid", "filename": "icon.png", "uploadedAt": 1234567890 }
+  ]
+}
+```
+
+**Upload Custom Icon**
+```http
+POST /api/icons
+Content-Type: multipart/form-data
+X-CSRF-Token: your-csrf-token
+
+(file upload, max 100KB, PNG/SVG/ICO/WEBP)
+
+Response: 201 Created
+{
+  "icon": { "id": "uuid", "filename": "uuid.png", "uploadedAt": 1234567890 }
+}
+```
+
+**Delete Custom Icon**
+```http
+DELETE /api/icons/:id
+X-CSRF-Token: your-csrf-token
+
+Response: 200 OK
+{
+  "success": true
+}
+```
+
+### CSRF Token
+
+**Get CSRF Token**
+```http
+GET /api/csrf
+
+Response: 200 OK
+{
+  "csrfToken": "hex-string"
+}
+```
+
+> **Important**: Include this token in the `X-CSRF-Token` header for all POST/PUT/DELETE requests.
+
 ## Architecture
 
 ### Backend Architecture
@@ -510,6 +647,7 @@ Simple Linkz uses a modular backend architecture with native Node.js (no Express
 
 ```json
 {
+  "schemaVersion": 1,
   "sessionSecret": "hex-string",
   "user": {
     "username": "string",
@@ -518,9 +656,16 @@ Simple Linkz uses a modular backend architecture with native Node.js (no Express
   "preferences": {
     "layout": "grid|list|cards",
     "theme": "light|dark",
-    "accentColor": "blue|green|purple|red|orange",
-    "backgroundColor": "white|gray|slate|zinc|dark",
-    "pageTitle": "string"
+    "accentColor": "blue|green|purple|red|orange|pink|cyan|yellow",
+    "backgroundColor": "white|stone|slate|sky|cyan|mint|lime|cream|peach|rose|charcoal|graphite|navy|ocean|forest|olive|espresso|burgundy|plum|noir",
+    "pageTitle": "string",
+    "customCss": {
+      "borderRadius": "0.5rem",
+      "cardShadow": "0 4px 6px...",
+      "fontFamily": "system-ui",
+      "linkGap": "1rem",
+      "widgetPadding": "1rem"
+    }
   },
   "links": [
     {
@@ -528,7 +673,24 @@ Simple Linkz uses a modular backend architecture with native Node.js (no Express
       "name": "string",
       "url": "string",
       "order": "number",
-      "faviconUrl": "string"
+      "faviconUrl": "string",
+      "tags": ["tag-id-1", "tag-id-2"],
+      "iconType": "favicon|material|fontawesome|custom",
+      "iconValue": "icon-id-or-filename"
+    }
+  ],
+  "tags": [
+    {
+      "id": "uuid-v4",
+      "name": "string",
+      "color": "#hex"
+    }
+  ],
+  "customIcons": [
+    {
+      "id": "uuid-v4",
+      "filename": "icon.png",
+      "uploadedAt": "timestamp"
     }
   ],
   "sessions": {
@@ -536,6 +698,13 @@ Simple Linkz uses a modular backend architecture with native Node.js (no Express
       "createdAt": "timestamp",
       "expiresAt": "timestamp"
     }
+  },
+  "csrfTokens": {
+    "session-token": "csrf-token"
+  },
+  "rateLimiting": {
+    "attempts": { "ip": ["timestamp1", "timestamp2"] },
+    "blocked": { "ip": { "until": "timestamp", "blockCount": "number" } }
   }
 }
 ```
@@ -547,6 +716,16 @@ Simple Linkz uses a modular backend architecture with native Node.js (no Express
 - **Session Management**: Signed cookies with HMAC-SHA256
 - **Session Expiration**: 7 days, validated on each request
 - **Cookie Security**: HttpOnly, SameSite=Strict flags
+
+### Rate Limiting
+- **Failed Login Protection**: Blocks IP after 5 failed attempts in 15 minutes
+- **Exponential Backoff**: Block duration doubles on repeated offenses (15min → 30min → 60min → ...)
+- **Proxy Support**: Respects `X-Forwarded-For` header for correct IP detection
+
+### CSRF Protection
+- **Token-Based**: All mutating requests (POST/PUT/DELETE) require `X-CSRF-Token` header
+- **Session-Bound**: CSRF tokens are tied to session tokens
+- **Auto-Refresh**: Frontend automatically refetches token on 403 errors
 
 ### Best Practices
 - Single-user design (no multi-user support)
