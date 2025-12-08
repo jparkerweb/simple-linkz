@@ -2,10 +2,13 @@ const http = require('http');
 const fs = require('fs').promises;
 const path = require('path');
 const storage = require('./storage');
+const { flushPendingWrites } = require('./storage');
 const api = require('./api');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+const ICONS_DIR = path.join(DATA_DIR, 'icons');
 // BASE_PATH allows serving from a subpath (e.g., /simple-linkz)
 // Remove trailing slash if present
 const BASE_PATH = (process.env.BASE_PATH || '').replace(/\/$/, '');
@@ -18,7 +21,11 @@ const CONTENT_TYPES = {
   '.json': 'application/json',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
-  '.ico': 'image/x-icon'
+  '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp'
 };
 
 /**
@@ -91,6 +98,24 @@ async function handleRequest(req, res) {
       return;
     }
 
+    // Serve custom icons from /icons/:filename
+    if (requestPath.startsWith('/icons/')) {
+      const filename = requestPath.slice('/icons/'.length);
+      // Security: prevent directory traversal
+      if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        statusCode = 403;
+        logRequest(req, statusCode);
+        return;
+      }
+      const iconPath = path.join(ICONS_DIR, filename);
+      await serveStaticFile(iconPath, res);
+      statusCode = res.statusCode;
+      logRequest(req, statusCode);
+      return;
+    }
+
     // Static file routes
     let filePath;
     if (requestPath === '/') {
@@ -132,6 +157,9 @@ async function start() {
     console.log('Initializing data storage...');
     await storage.initializeData();
 
+    // Ensure icons directory exists
+    await fs.mkdir(ICONS_DIR, { recursive: true });
+
     // Create HTTP server
     const server = http.createServer(handleRequest);
 
@@ -149,6 +177,21 @@ async function start() {
     process.exit(1);
   }
 }
+
+// Graceful shutdown handlers
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, flushing pending writes...');
+  await flushPendingWrites();
+  console.log('Shutdown complete');
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('\nSIGINT received, flushing pending writes...');
+  await flushPendingWrites();
+  console.log('Shutdown complete');
+  process.exit(0);
+});
 
 // Start the server
 start();

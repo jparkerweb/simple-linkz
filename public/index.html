@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Simple Linkz</title>
   <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/fonts/material-icons/material-icons.css">
+  <link rel="stylesheet" href="/fonts/fontawesome/fontawesome.css">
   <style>
     :root {
       --accent-color: #3B82F6;
     }
     #app-title {
-      background: linear-gradient(135deg, var(--accent-color), var(--accent-color) 70%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--sl-accent) !important;
     }
     .accent-border {
       border-color: var(--accent-color) !important;
@@ -56,27 +59,27 @@
 
   <!-- Setup Screen -->
   <div id="setup-screen" class="hidden min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome to Simple Linkz</h1>
-      <p class="text-gray-600 dark:text-gray-400 mb-6">Let's set up your account</p>
+    <div class="rounded-lg shadow-xl p-8 w-full max-w-md">
+      <h1 class="text-3xl font-bold mb-2">Welcome to Simple Linkz</h1>
+      <p class="opacity-70 mb-6">Let's set up your account</p>
 
       <form id="setup-form">
         <div class="mb-4">
-          <label for="setup-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+          <label for="setup-username" class="block text-sm font-medium mb-2">Username</label>
           <input type="text" id="setup-username" required
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
 
         <div class="mb-6">
-          <label for="setup-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+          <label for="setup-password" class="block text-sm font-medium mb-2">Password</label>
           <input type="password" id="setup-password" required minlength="8"
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 8 characters</p>
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <p class="text-xs opacity-70 mt-1">Minimum 8 characters</p>
         </div>
 
-        <div id="setup-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg text-sm"></div>
+        <div id="setup-error" class="hidden mb-4 p-3 bg-red-600 text-white rounded-lg text-sm"></div>
 
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+        <button type="submit" class="w-full accent-bg font-semibold py-2 px-4 rounded-lg transition-colors">
           Create Account
         </button>
       </form>
@@ -85,25 +88,25 @@
 
   <!-- Login Screen -->
   <div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Simple Linkz</h1>
+    <div class="rounded-lg shadow-xl p-8 w-full max-w-md">
+      <h1 class="text-3xl font-bold mb-6">Simple Linkz</h1>
 
       <form id="login-form">
         <div class="mb-4">
-          <label for="login-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+          <label for="login-username" class="block text-sm font-medium mb-2">Username</label>
           <input type="text" id="login-username" required
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
 
         <div class="mb-6">
-          <label for="login-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+          <label for="login-password" class="block text-sm font-medium mb-2">Password</label>
           <input type="password" id="login-password" required
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
 
-        <div id="login-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg text-sm"></div>
+        <div id="login-error" class="hidden mb-4 p-3 bg-red-600 text-white rounded-lg text-sm"></div>
 
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+        <button type="submit" class="w-full accent-bg font-semibold py-2 px-4 rounded-lg transition-colors">
           Login
         </button>
       </form>
@@ -112,22 +115,27 @@
 
   <!-- Main Dashboard -->
   <div id="app" class="hidden min-h-screen">
-    <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+    <header class="border-b sticky top-0 z-10">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 id="app-title" class="text-2xl font-bold text-gray-900 dark:text-white cursor-pointer hover:opacity-80 transition-opacity">Simple Linkz</h1>
+          <h1 id="app-title" class="text-2xl font-bold cursor-pointer hover:opacity-80 transition-opacity">Simple Linkz</h1>
 
           <div class="flex items-center gap-3 flex-wrap">
             <input type="search" id="search" placeholder="Search links..."
-              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              class="px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" id="search-input">
 
-            <div id="layout-toggle" class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <select id="tag-filter" class="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">All Links</option>
+              <!-- Tag options will be populated dynamically -->
+            </select>
+
+            <div id="layout-toggle" class="layout-toggle flex rounded-lg p-1">
               <button data-layout="grid" class="px-3 py-1 rounded text-sm font-medium transition-colors">Grid</button>
               <button data-layout="list" class="px-3 py-1 rounded text-sm font-medium transition-colors">List</button>
               <button data-layout="cards" class="px-3 py-1 rounded text-sm font-medium transition-colors">Cards</button>
             </div>
 
-            <button id="settings-btn" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors">
+            <button id="settings-btn" class="px-4 py-2 btn-secondary rounded-lg text-sm font-medium transition-colors">
               Settings
             </button>
           </div>
@@ -141,47 +149,72 @@
       </div>
 
       <div id="empty-state" class="hidden text-center py-16">
-        <p class="text-gray-500 dark:text-gray-400 mb-4">No links yet. Add your first link to get started!</p>
+        <p class="opacity-70 mb-4">No links yet. Add your first link to get started!</p>
       </div>
     </main>
 
-    <button id="add-link-btn" class="accent-bg fixed bottom-8 right-8 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all text-2xl">
+    <button id="add-link-btn" class="accent-bg fixed bottom-8 right-8 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all text-2xl" aria-label="Add new link">
       +
     </button>
   </div>
 
   <!-- Link Modal -->
   <div id="link-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+    <div class="rounded-lg shadow-xl w-full max-w-md">
       <div class="p-6">
-        <h2 id="link-modal-title" class="text-xl font-bold text-gray-900 dark:text-white mb-4">Add Link</h2>
+        <h2 id="link-modal-title" class="text-xl font-bold mb-4">Add Link</h2>
 
         <form id="link-form">
           <div class="mb-4">
-            <label for="link-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL</label>
+            <label for="link-url" class="block text-sm font-medium mb-2">URL</label>
             <input type="url" id="link-url" required
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
 
           <div class="mb-4">
-            <label for="link-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Display Name</label>
+            <label for="link-name" class="block text-sm font-medium mb-2">Display Name</label>
             <input type="text" id="link-name" required maxlength="100"
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-2">Icon</label>
+            <div class="flex items-center gap-3">
+              <div id="link-icon-preview" class="w-12 h-12 flex items-center justify-center border rounded-lg">
+                <!-- Icon preview will be shown here -->
+                <span class="opacity-50 text-sm">None</span>
+              </div>
+              <button type="button" id="change-icon-btn"
+                class="flex-1 px-4 py-2 btn-secondary rounded-lg text-sm font-medium transition-colors">
+                Choose Icon
+              </button>
+              <input type="hidden" id="link-icon-type" value="favicon">
+              <input type="hidden" id="link-icon-value" value="">
+            </div>
+            <p class="mt-1 text-xs opacity-70">Choose from favicon, icon fonts, or upload custom</p>
+          </div>
+
+          <div class="mb-4">
+            <label for="link-emoji" class="block text-sm font-medium mb-2">Fallback Emoji <span class="opacity-70 text-xs">(shown if icon fails to load)</span></label>
+            <input type="text" id="link-emoji" maxlength="2" placeholder="🔗"
+              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl">
           </div>
 
           <div class="mb-6">
-            <label for="link-emoji" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fallback Emoji Icon <span class="text-gray-500 text-xs">(optional - shown if no favicon found)</span></label>
-            <input type="text" id="link-emoji" maxlength="2" placeholder="🔗"
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl">
+            <label class="block text-sm font-medium mb-2">Tags</label>
+            <div id="link-tags-container" class="flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px]">
+              <!-- Tag checkboxes will be rendered here -->
+              <span class="opacity-50 text-sm italic" id="no-tags-message">No tags available. Create tags in Settings.</span>
+            </div>
           </div>
 
-          <div id="link-error" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg text-sm"></div>
+          <div id="link-error" class="hidden mb-4 p-3 bg-red-600 text-white rounded-lg text-sm"></div>
 
           <div class="flex gap-3">
-            <button type="button" id="link-cancel-btn" class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors">
+            <button type="button" id="link-cancel-btn" class="flex-1 px-4 py-2 btn-secondary rounded-lg font-medium transition-colors">
               Cancel
             </button>
-            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+            <button type="submit" class="flex-1 px-4 py-2 accent-bg rounded-lg font-medium transition-colors">
               Save
             </button>
           </div>
@@ -191,71 +224,87 @@
   </div>
 
   <!-- Settings Modal -->
-  <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onclick="if(event.target === this) hideSettingsModal()">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+  <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50" onclick="if(event.target === this) cancelSettingsModal()">
+    <div class="rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
       <div class="p-6">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Settings</h2>
+        <h2 class="text-xl font-bold mb-6">Settings</h2>
 
         <!-- Page Title -->
-        <div class="mb-6">
-          <label for="page-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Page Title</label>
+        <div class="mb-5">
+          <label for="page-title" class="block text-sm font-medium mb-2">Page Title</label>
           <input type="text" id="page-title" maxlength="50" placeholder="Simple Linkz"
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            class="w-full px-4 py-2.5 border rounded-lg text-sm">
         </div>
 
-        <!-- Theme -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Theme</label>
-          <div class="flex gap-2">
-            <button data-theme="light" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium transition-colors">
-              Light
-            </button>
-            <button data-theme="dark" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium transition-colors">
-              Dark
-            </button>
-          </div>
-        </div>
+        <!-- Theme Presets -->
+        <div class="mb-5">
+          <div class="settings-section-title">Theme</div>
+          <div class="settings-section">
+            <div id="theme-presets" class="grid grid-cols-4 gap-2 mb-4">
+              <!-- Theme presets will be rendered by JavaScript -->
+            </div>
 
-        <!-- Accent Color -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Accent Color</label>
-          <div class="flex gap-2 flex-wrap">
-            <button data-color="blue" class="w-10 h-10 rounded-full bg-blue-600 border-2 border-transparent transition-all"></button>
-            <button data-color="green" class="w-10 h-10 rounded-full bg-green-600 border-2 border-transparent transition-all"></button>
-            <button data-color="purple" class="w-10 h-10 rounded-full bg-purple-600 border-2 border-transparent transition-all"></button>
-            <button data-color="red" class="w-10 h-10 rounded-full bg-red-600 border-2 border-transparent transition-all"></button>
-            <button data-color="orange" class="w-10 h-10 rounded-full bg-orange-600 border-2 border-transparent transition-all"></button>
-            <button data-color="pink" class="w-10 h-10 rounded-full bg-pink-600 border-2 border-transparent transition-all"></button>
-            <button data-color="cyan" class="w-10 h-10 rounded-full bg-cyan-600 border-2 border-transparent transition-all"></button>
-            <button data-color="yellow" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-transparent transition-all"></button>
+            <!-- Accent Color -->
+            <div class="flex items-center gap-3 pt-3 border-t border-subtle">
+              <label for="accentColor" class="text-sm flex-1">Accent Color</label>
+              <input type="color" id="accentColor" class="w-10 h-10 rounded cursor-pointer">
+            </div>
+
+            <!-- Background Color -->
+            <div class="flex items-center gap-3 pt-3 border-t border-subtle">
+              <label for="backgroundColor" class="text-sm flex-1">Background Color</label>
+              <input type="color" id="backgroundColor" class="w-10 h-10 rounded cursor-pointer">
+            </div>
           </div>
         </div>
 
-        <!-- Background Color -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Background Color</label>
-          <div id="bg-color-light" class="hidden grid grid-cols-2 gap-2">
-            <button data-bg="white" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors bg-white text-gray-900">Clean White</button>
-            <button data-bg="gray" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors bg-gray-200 text-gray-900">Soft Gray</button>
-            <button data-bg="slate" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors bg-blue-50 text-blue-900">Cool Blue</button>
-            <button data-bg="zinc" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors bg-amber-50 text-amber-900">Warm Amber</button>
+        <!-- Advanced Styling (collapsed by default) -->
+        <div class="mb-5">
+          <button type="button" id="toggle-advanced-btn" class="w-full text-left text-sm text-muted flex items-center gap-2 py-2">
+            <svg id="advanced-chevron" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            Advanced Styling
+          </button>
+          <div id="advanced-styling" class="hidden mt-2">
+            <div class="settings-section space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="customBorderRadius" class="block text-xs text-muted mb-1">Border Radius</label>
+                  <input type="text" id="customBorderRadius" placeholder="0.625rem" class="w-full px-3 py-2 text-sm">
+                </div>
+                <div>
+                  <label for="customLinkGap" class="block text-xs text-muted mb-1">Link Gap</label>
+                  <input type="text" id="customLinkGap" placeholder="1rem" class="w-full px-3 py-2 text-sm">
+                </div>
+              </div>
+              <div>
+                <label for="customFontFamily" class="block text-xs text-muted mb-1">Font Family</label>
+                <input type="text" id="customFontFamily" placeholder="system-ui" class="w-full px-3 py-2 text-sm">
+              </div>
+              <button type="button" id="reset-custom-css-btn" class="w-full mt-1 px-3 py-2 text-xs btn-secondary rounded-lg">
+                Reset to Defaults
+              </button>
+            </div>
           </div>
-          <div id="bg-color-dark" class="hidden grid grid-cols-2 gap-2">
-            <button data-bg="gray" class="px-4 py-2 border border-gray-600 rounded-lg text-sm font-medium transition-colors bg-gray-950 text-white">Dark Gray</button>
-            <button data-bg="slate" class="px-4 py-2 border border-gray-600 rounded-lg text-sm font-medium transition-colors bg-blue-950 text-blue-200">Midnight Blue</button>
-            <button data-bg="zinc" class="px-4 py-2 border border-gray-600 rounded-lg text-sm font-medium transition-colors bg-amber-950 text-amber-200">Deep Amber</button>
-            <button data-bg="white" class="px-4 py-2 border border-gray-600 rounded-lg text-sm font-medium transition-colors bg-black text-white">Pure Black</button>
-          </div>
+        </div>
+
+        <!-- Tag Management -->
+        <div class="mb-5">
+          <div class="settings-section-title">Tags</div>
+          <button id="manage-tags-btn" class="w-full px-4 py-2.5 btn-secondary rounded-lg text-sm font-medium transition-colors">
+            Manage Tags
+          </button>
         </div>
 
         <!-- Import/Export -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Backup & Restore</label>
+        <div class="mb-5">
+          <div class="settings-section-title">Backup & Restore</div>
           <div class="flex gap-2">
-            <button id="export-btn" class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors">
+            <button id="export-btn" class="flex-1 px-4 py-2.5 btn-secondary rounded-lg text-sm font-medium transition-colors">
               Export
             </button>
-            <label for="import-file" class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors text-center cursor-pointer">
+            <label for="import-file" class="flex-1 px-4 py-2.5 btn-secondary rounded-lg text-sm font-medium transition-colors text-center cursor-pointer">
               Import
             </label>
             <input type="file" id="import-file" accept=".json" class="hidden">
@@ -263,19 +312,207 @@
         </div>
 
         <!-- Actions -->
-        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button id="reset-credentials-btn" class="w-full mb-3 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors">
-            Reset Credentials
-          </button>
+        <div class="pt-5 mt-5 border-t border-subtle space-y-3">
           <div class="flex gap-3">
-            <button id="settings-close-btn" class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors">
-              Close
+            <button id="settings-cancel-btn" class="flex-1 px-4 py-2.5 btn-secondary rounded-lg font-medium transition-colors">
+              Cancel
             </button>
-            <button id="logout-btn" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+            <button id="settings-save-btn" class="flex-1 px-4 py-2.5 accent-bg rounded-lg font-medium transition-colors">
+              Save & Close
+            </button>
+          </div>
+          <div class="flex gap-2 pt-2">
+            <button id="reset-credentials-btn" class="flex-1 px-3 py-2 text-xs rounded-lg font-medium transition-colors text-orange-400 hover:bg-orange-600/20">
+              Reset Credentials
+            </button>
+            <button id="logout-btn" class="flex-1 px-3 py-2 text-xs rounded-lg font-medium transition-colors text-red-400 hover:bg-red-600/20">
               Logout
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tag Management Modal -->
+  <div id="tag-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onclick="if(event.target === this) hideTagModal()">
+    <div class="rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <h2 class="text-xl font-bold mb-4">Manage Tags</h2>
+
+        <!-- Existing Tags List -->
+        <div id="tag-list" class="mb-6 space-y-2">
+          <!-- Tags will be rendered here -->
+        </div>
+
+        <!-- Add New Tag Form -->
+        <div class="border-t border-subtle pt-4">
+          <h3 class="text-sm font-medium mb-3">Add New Tag</h3>
+          <form id="add-tag-form" class="flex gap-2 items-end">
+            <div class="flex-1">
+              <label for="new-tag-name" class="block text-xs text-muted mb-1">Name</label>
+              <input type="text" id="new-tag-name" required maxlength="30" placeholder="e.g., Work"
+                class="w-full px-3 py-2 border rounded-lg text-sm">
+            </div>
+            <div>
+              <label for="new-tag-color" class="block text-xs text-muted mb-1">Color</label>
+              <input type="color" id="new-tag-color" value="#3B82F6"
+                class="w-10 h-10 rounded-lg cursor-pointer">
+            </div>
+            <button type="submit" class="px-4 py-2 accent-bg rounded-lg text-sm font-medium transition-colors">
+              Add
+            </button>
+          </form>
+          <div id="tag-error" class="hidden mt-2 text-sm text-red-500"></div>
+        </div>
+
+        <!-- Close Button -->
+        <div class="mt-6 pt-4 border-t border-subtle">
+          <button id="tag-modal-close-btn" class="w-full px-4 py-2 btn-secondary rounded-lg font-medium transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Tag Modal -->
+  <div id="edit-tag-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-60" onclick="if(event.target === this) hideEditTagModal()">
+    <div class="surface-bg rounded-lg shadow-xl w-full max-w-sm p-6">
+      <h2 class="text-lg font-bold mb-4">Edit Tag</h2>
+      <form id="edit-tag-form">
+        <input type="hidden" id="edit-tag-id">
+        <div class="mb-4">
+          <label for="edit-tag-name" class="block text-sm text-muted mb-1">Name</label>
+          <input type="text" id="edit-tag-name" required maxlength="30"
+            class="w-full px-3 py-2 border border-subtle rounded-lg text-sm surface-bg">
+        </div>
+        <div class="mb-4">
+          <label for="edit-tag-color" class="block text-sm text-muted mb-1">Color</label>
+          <input type="color" id="edit-tag-color"
+            class="w-full h-10 rounded-lg cursor-pointer">
+        </div>
+        <div id="edit-tag-error" class="hidden mb-4 text-sm text-red-500"></div>
+        <div class="flex gap-3">
+          <button type="button" onclick="hideEditTagModal()" class="flex-1 px-4 py-2 btn-secondary rounded-lg font-medium transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="flex-1 px-4 py-2 accent-bg rounded-lg font-medium transition-colors">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog Modal -->
+  <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-70">
+    <div class="surface-bg rounded-lg shadow-xl w-full max-w-sm p-6">
+      <h2 id="confirm-modal-title" class="text-lg font-bold mb-2">Confirm</h2>
+      <p id="confirm-modal-message" class="text-sm text-muted mb-6"></p>
+      <div class="flex gap-3">
+        <button id="confirm-modal-cancel" class="flex-1 px-4 py-2 btn-secondary rounded-lg font-medium transition-colors">
+          Cancel
+        </button>
+        <button id="confirm-modal-confirm" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Icon Picker Modal -->
+  <div id="icon-picker-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-60" onclick="if(event.target === this) hideIconPickerModal()">
+    <div class="surface-bg rounded-lg shadow-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-subtle">
+        <h2 class="text-lg font-bold mb-3">Choose Icon</h2>
+
+        <!-- Icon Type Tabs -->
+        <div class="flex gap-1 mb-3">
+          <button id="icon-tab-favicon" class="icon-tab flex-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors active" onclick="switchIconTab('favicon')">
+            Favicon
+          </button>
+          <button id="icon-tab-material" class="icon-tab btn-secondary flex-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" onclick="switchIconTab('material')">
+            Material
+          </button>
+          <button id="icon-tab-fontawesome" class="icon-tab btn-secondary flex-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" onclick="switchIconTab('fontawesome')">
+            Font Awesome
+          </button>
+          <button id="icon-tab-custom" class="icon-tab btn-secondary flex-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" onclick="switchIconTab('custom')">
+            Custom
+          </button>
+        </div>
+
+        <!-- Search (for Material and FontAwesome tabs) -->
+        <div id="icon-search-container" class="hidden">
+          <input type="text" id="icon-search-input" placeholder="Search icons..."
+            class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <!-- Font Awesome Sub-tabs -->
+        <div id="fontawesome-subtabs" class="hidden flex gap-2 mt-2">
+          <button id="fa-subtab-solid" class="px-3 py-1 text-xs font-medium rounded transition-colors accent-bg" onclick="switchFaSubtab('solid')">
+            Solid
+          </button>
+          <button id="fa-subtab-brands" class="btn-secondary px-3 py-1 text-xs font-medium rounded transition-colors" onclick="switchFaSubtab('brands')">
+            Brands
+          </button>
+        </div>
+      </div>
+
+      <!-- Icon Grid Content -->
+      <div id="icon-picker-content" class="flex-1 overflow-y-auto p-4">
+        <!-- Favicon Tab Content -->
+        <div id="icon-content-favicon" class="icon-tab-content">
+          <p class="text-sm opacity-70 mb-4">Use the automatically fetched favicon from the website.</p>
+          <div class="flex items-center gap-3 p-3 rounded-lg surface-hover-bg">
+            <div id="favicon-preview" class="w-8 h-8 flex items-center justify-center">
+              <span class="opacity-50">No URL</span>
+            </div>
+            <span class="text-sm">Favicon from website</span>
+          </div>
+          <button id="select-favicon-btn" class="mt-4 w-full px-4 py-2 accent-bg rounded-lg text-sm font-medium transition-colors">
+            Use Favicon
+          </button>
+        </div>
+
+        <!-- Material Icons Tab Content -->
+        <div id="icon-content-material" class="icon-tab-content hidden">
+          <div id="material-icons-grid" class="grid grid-cols-8 gap-2">
+            <!-- Icons rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Font Awesome Tab Content -->
+        <div id="icon-content-fontawesome" class="icon-tab-content hidden">
+          <div id="fontawesome-icons-grid" class="grid grid-cols-8 gap-2">
+            <!-- Icons rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Custom Icons Tab Content -->
+        <div id="icon-content-custom" class="icon-tab-content hidden">
+          <div class="mb-4">
+            <label for="icon-upload" class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-subtle rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+              <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+              </svg>
+              <span class="text-sm opacity-70">Upload Icon (PNG, SVG, ICO, WEBP - max 100KB)</span>
+            </label>
+            <input type="file" id="icon-upload" accept=".png,.svg,.ico,.webp" class="hidden">
+          </div>
+          <div id="custom-icons-grid" class="grid grid-cols-6 gap-3">
+            <!-- Custom icons rendered via JS -->
+          </div>
+          <p id="no-custom-icons" class="text-sm opacity-50 text-center py-4">No custom icons uploaded yet.</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 border-t" style="border-color: rgba(255,255,255,0.1);">
+        <button id="icon-picker-cancel" class="w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background: rgba(255,255,255,0.1);" onclick="hideIconPickerModal()">
+          Cancel
+        </button>
       </div>
     </div>
   </div>

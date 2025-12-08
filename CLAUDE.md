@@ -82,8 +82,8 @@ Simple Linkz is a single-user, self-hosted link dashboard with minimal dependenc
   "preferences": {
     "layout": "grid|list|cards",
     "theme": "light|dark",
-    "accentColor": "blue|green|purple|red|orange",
-    "backgroundColor": "white|gray|slate|zinc|dark",
+    "accentColor": "blue|green|purple|red|orange|pink|cyan|yellow",
+    "backgroundColor": "white|stone|slate|sky|cyan|mint|lime|cream|peach|rose|charcoal|graphite|navy|ocean|forest|olive|espresso|burgundy|plum|noir",
     "pageTitle": "Simple Linkz"
   },
   "links": [
