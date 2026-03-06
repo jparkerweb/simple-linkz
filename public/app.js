@@ -1,6 +1,99 @@
 // Get base path from injected window variable (set by server if BASE_PATH env var is defined)
 const BASE_PATH = window.BASE_PATH || '';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Toast Notification System
+// ─────────────────────────────────────────────────────────────────────────────
+const toastQueue = [];
+const MAX_TOASTS = 3;
+
+function showToast(message, type = 'success', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  toast.addEventListener('click', () => dismissToast(toast));
+
+  container.appendChild(toast);
+  toastQueue.push(toast);
+
+  // Remove oldest if over max
+  while (toastQueue.length > MAX_TOASTS) {
+    dismissToast(toastQueue[0]);
+  }
+
+  // Auto-dismiss
+  setTimeout(() => dismissToast(toast), duration);
+}
+
+function dismissToast(toast) {
+  if (!toast || !toast.parentElement) return;
+  const idx = toastQueue.indexOf(toast);
+  if (idx > -1) toastQueue.splice(idx, 1);
+  toast.classList.add('toast-exit');
+  toast.addEventListener('animationend', () => toast.remove(), { once: true });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Modal Animation Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function openModal(modalEl) {
+  modalEl.classList.remove('hidden');
+  modalEl.classList.add('modal-entering');
+  modalEl.classList.remove('modal-visible', 'modal-exiting');
+  // Force reflow to trigger transition
+  modalEl.offsetHeight;
+  modalEl.classList.remove('modal-entering');
+  modalEl.classList.add('modal-visible');
+}
+
+function closeModal(modalEl, callback) {
+  modalEl.classList.remove('modal-visible');
+  modalEl.classList.add('modal-exiting');
+  let done = false;
+  const onEnd = () => {
+    if (done) return;
+    done = true;
+    modalEl.classList.remove('modal-exiting');
+    modalEl.classList.add('hidden');
+    if (callback) callback();
+  };
+  const panel = modalEl.querySelector(':scope > div');
+  if (panel) {
+    panel.addEventListener('transitionend', function handler(e) {
+      if (e.target === panel) {
+        panel.removeEventListener('transitionend', handler);
+        onEnd();
+      }
+    });
+  }
+  setTimeout(onEnd, 300);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Button Loading State Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function setButtonLoading(btn, loading) {
+  if (!btn) return;
+  if (loading) {
+    btn.dataset.originalText = btn.textContent;
+    btn.classList.add('btn-loading');
+    const span = document.createElement('span');
+    span.className = 'btn-text';
+    span.textContent = btn.textContent;
+    btn.textContent = '';
+    btn.appendChild(span);
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('btn-loading');
+    btn.textContent = btn.dataset.originalText || btn.textContent;
+    btn.disabled = false;
+    delete btn.dataset.originalText;
+  }
+}
+
 // Background color definitions with hex values
 const BACKGROUND_COLORS = {
   // Light colors
@@ -2508,6 +2601,7 @@ async function fetchMissingFavicons() {
     return;
   }
 
+  showToast('Fetching favicons...', 'info', 2000);
   let needsSave = false;
   const faviconUpdates = [];
 
@@ -2533,6 +2627,7 @@ async function fetchMissingFavicons() {
   // Save updated links if we fetched any new favicons
   if (needsSave) {
     await api.saveLinks(state.links);
+    showToast('Favicons updated', 'success');
   }
 }
 
@@ -2550,14 +2645,22 @@ function setupEventListeners() {
     debouncedRenderLinks();
   });
 
-  // Layout toggle
+  // Layout toggle with transition
   document.querySelectorAll('#layout-toggle button').forEach(btn => {
     btn.addEventListener('click', async () => {
       const layout = btn.dataset.layout;
+      if (state.preferences.layout === layout) return;
+      const container = document.getElementById('links-container');
+      container.classList.add('layout-transitioning');
       state.preferences.layout = layout;
       await api.savePreferences(state.preferences);
-      renderLinks();
-      updateLayoutToggle();
+      setTimeout(() => {
+        renderLinks();
+        updateLayoutToggle();
+        // Force reflow then fade in
+        container.offsetHeight;
+        container.classList.remove('layout-transitioning');
+      }, 150);
     });
   });
 
@@ -2566,6 +2669,15 @@ function setupEventListeners() {
     state.editingLink = null;
     showLinkModal();
   });
+
+  // Empty state CTA button
+  const emptyStateBtn = document.getElementById('empty-state-add-btn');
+  if (emptyStateBtn) {
+    emptyStateBtn.addEventListener('click', () => {
+      state.editingLink = null;
+      showLinkModal();
+    });
+  }
 
   // Settings button
   document.getElementById('settings-btn').addEventListener('click', showSettingsModal);
@@ -3071,7 +3183,7 @@ function showLinkModal() {
     updateLinkIconPreview('favicon', null, '');
   }
 
-  modal.classList.remove('hidden');
+  openModal(modal);
   urlInput.focus();
 }
 
@@ -3133,8 +3245,9 @@ async function handleUrlBlur() {
 }
 
 function hideLinkModal() {
-  document.getElementById('link-modal').classList.add('hidden');
-  state.editingLink = null;
+  closeModal(document.getElementById('link-modal'), () => {
+    state.editingLink = null;
+  });
 }
 
 async function fetchFavicon(url) {
@@ -3221,10 +3334,16 @@ async function handleSaveLink(e) {
     state.links.push(newLink);
   }
 
+  const saveBtn = document.querySelector('#link-form button[type="submit"]');
+  setButtonLoading(saveBtn, true);
+
   const result = await api.saveLinks(state.links);
+  setButtonLoading(saveBtn, false);
   if (result.success) {
+    const wasEditing = !!state.editingLink;
     hideLinkModal();
     renderLinks();
+    showToast(wasEditing ? 'Link saved' : 'Link created', 'success');
   } else {
     errorEl.textContent = result.error || 'Failed to save link';
     errorEl.classList.remove('hidden');
@@ -3256,6 +3375,7 @@ window.deleteLink = async function(id) {
 
   await api.saveLinks(state.links);
   renderLinks();
+  showToast('Link deleted', 'success');
 };
 
 // Store original preferences for cancel/revert
@@ -3266,7 +3386,7 @@ function showSettingsModal() {
   // Store original preferences for reverting on cancel
   originalPreferences = JSON.parse(JSON.stringify(state.preferences));
 
-  document.getElementById('settings-modal').classList.remove('hidden');
+  openModal(document.getElementById('settings-modal'));
   document.getElementById('page-title').value = state.preferences.pageTitle || 'Simple Linkz';
 
   // Initialize theme presets UI
@@ -3283,10 +3403,13 @@ function showSettingsModal() {
 }
 
 async function hideSettingsModal() {
-  // Save any pending preferences
+  const saveBtn = document.getElementById('settings-save-btn');
+  setButtonLoading(saveBtn, true);
   await api.savePreferences(state.preferences);
+  setButtonLoading(saveBtn, false);
   originalPreferences = null;
-  document.getElementById('settings-modal').classList.add('hidden');
+  closeModal(document.getElementById('settings-modal'));
+  showToast('Settings saved', 'success');
 }
 
 function cancelSettingsModal() {
@@ -3296,13 +3419,13 @@ function cancelSettingsModal() {
     originalPreferences = null;
   }
   applyTheme();
-  document.getElementById('settings-modal').classList.add('hidden');
+  closeModal(document.getElementById('settings-modal'));
 }
 
 async function handleLogout() {
-  hideSettingsModal();
+  closeModal(document.getElementById('settings-modal'));
   await api.logout();
-  state.csrfToken = null; // Clear CSRF token on logout
+  state.csrfToken = null;
   showLoginScreen();
 }
 
@@ -3334,6 +3457,7 @@ async function handleExport() {
   a.download = 'simple-linkz-export.json';
   a.click();
   URL.revokeObjectURL(url);
+  showToast('Export downloaded', 'success');
 }
 
 async function handleImport(e) {
@@ -3353,11 +3477,13 @@ async function handleImport(e) {
         renderLinks();
         updateTagFilter();
         hideSettingsModal();
+        const count = state.links.length;
+        showToast(`${count} links imported`, 'success');
       } else {
-        alert('Import failed: ' + (result.error || 'Unknown error'));
+        showToast('Import failed: ' + (result.error || 'Unknown error'), 'error');
       }
     } catch (error) {
-      alert('Invalid import file');
+      showToast('Invalid import file', 'error');
     }
   };
   reader.readAsText(file);
@@ -3366,7 +3492,7 @@ async function handleImport(e) {
 
 // Tag Management Modal
 function showTagModal() {
-  document.getElementById('tag-modal').classList.remove('hidden');
+  openModal(document.getElementById('tag-modal'));
   renderTagList();
   document.getElementById('new-tag-name').value = '';
   document.getElementById('new-tag-color').value = '#3B82F6';
@@ -3374,7 +3500,7 @@ function showTagModal() {
 }
 
 function hideTagModal() {
-  document.getElementById('tag-modal').classList.add('hidden');
+  closeModal(document.getElementById('tag-modal'));
   // Refresh the tag filter dropdown
   updateTagFilter();
 }
@@ -3421,6 +3547,7 @@ async function handleAddTag(e) {
     document.getElementById('new-tag-color').value = '#3B82F6';
     errorEl.classList.add('hidden');
     updateTagFilter();
+    showToast('Tag created', 'success');
   } else {
     errorEl.textContent = result.error || 'Failed to create tag';
     errorEl.classList.remove('hidden');
@@ -3436,12 +3563,12 @@ function showEditTagModal(id) {
   document.getElementById('edit-tag-name').value = tag.name;
   document.getElementById('edit-tag-color').value = tag.color;
   document.getElementById('edit-tag-error').classList.add('hidden');
-  document.getElementById('edit-tag-modal').classList.remove('hidden');
+  openModal(document.getElementById('edit-tag-modal'));
   document.getElementById('edit-tag-name').focus();
 }
 
 function hideEditTagModal() {
-  document.getElementById('edit-tag-modal').classList.add('hidden');
+  closeModal(document.getElementById('edit-tag-modal'));
 }
 window.hideEditTagModal = hideEditTagModal;
 
@@ -3485,13 +3612,13 @@ function showConfirmModal(title, message) {
     const modal = document.getElementById('confirm-modal');
     document.getElementById('confirm-modal-title').textContent = title;
     document.getElementById('confirm-modal-message').textContent = message;
-    modal.classList.remove('hidden');
+    openModal(modal);
 
     const confirmBtn = document.getElementById('confirm-modal-confirm');
     const cancelBtn = document.getElementById('confirm-modal-cancel');
 
     const cleanup = () => {
-      modal.classList.add('hidden');
+      closeModal(modal);
       confirmBtn.removeEventListener('click', handleConfirm);
       cancelBtn.removeEventListener('click', handleCancel);
     };
@@ -3644,7 +3771,7 @@ function showIconPickerModal(currentUrl, onSelectCallback) {
   iconPickerState.searchQuery = '';
 
   // Reset UI
-  document.getElementById('icon-picker-modal').classList.remove('hidden');
+  openModal(document.getElementById('icon-picker-modal'));
   document.getElementById('icon-search-input').value = '';
 
   // Load custom icons
@@ -3660,8 +3787,9 @@ function showIconPickerModal(currentUrl, onSelectCallback) {
 }
 
 function hideIconPickerModal() {
-  document.getElementById('icon-picker-modal').classList.add('hidden');
-  iconPickerState.onSelect = null;
+  closeModal(document.getElementById('icon-picker-modal'), () => {
+    iconPickerState.onSelect = null;
+  });
 }
 
 window.hideIconPickerModal = hideIconPickerModal;
@@ -3915,6 +4043,7 @@ function setupDragAndDrop() {
   linkElements.forEach(el => {
     el.addEventListener('dragstart', handleDragStart);
     el.addEventListener('dragover', handleDragOver);
+    el.addEventListener('dragleave', handleDragLeave);
     el.addEventListener('drop', handleDrop);
     el.addEventListener('dragend', handleDragEnd);
   });
@@ -3922,23 +4051,43 @@ function setupDragAndDrop() {
 
 function handleDragStart(e) {
   draggedElement = this;
-  this.style.opacity = '0.5';
+  this.classList.add('dragging');
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/html', this.innerHTML);
 }
 
 function handleDragOver(e) {
-  if (e.preventDefault) {
-    e.preventDefault();
-  }
+  e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
+
+  if (this !== draggedElement && draggedElement) {
+    // Clear previous indicators
+    document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+      el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+    // Show drop indicator based on cursor position
+    const rect = this.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+      this.classList.add('drag-over-top');
+    } else {
+      this.classList.add('drag-over-bottom');
+    }
+  }
   return false;
 }
 
+function handleDragLeave(e) {
+  this.classList.remove('drag-over-top', 'drag-over-bottom');
+}
+
 function handleDrop(e) {
-  if (e.stopPropagation) {
-    e.stopPropagation();
-  }
+  e.stopPropagation();
+
+  // Clear all drag indicators
+  document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+    el.classList.remove('drag-over-top', 'drag-over-bottom');
+  });
 
   if (draggedElement !== this) {
     const draggedId = draggedElement.dataset.linkId;
@@ -3959,13 +4108,27 @@ function handleDrop(e) {
     // Save and re-render
     api.saveLinks(state.links);
     renderLinks();
+    showToast('Order saved', 'info');
+
+    // Brief pulse on the dropped card
+    setTimeout(() => {
+      const droppedCard = document.querySelector(`[data-link-id="${draggedId}"]`);
+      if (droppedCard) {
+        droppedCard.classList.add('drop-complete');
+        droppedCard.addEventListener('animationend', () => droppedCard.classList.remove('drop-complete'), { once: true });
+      }
+    }, 50);
   }
 
   return false;
 }
 
 function handleDragEnd(e) {
-  this.style.opacity = '1';
+  this.classList.remove('dragging');
+  // Clean up any lingering indicators
+  document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+    el.classList.remove('drag-over-top', 'drag-over-bottom');
+  });
   draggedElement = null;
 }
 

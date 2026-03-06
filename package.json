@@ -1,6 +1,6 @@
 {
   "name": "simple-linkz",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Simple Dashboard Page for common Linkz to Pages you visit Daily",
   "main": "src/server.js",
   "scripts": {
@@ -25,6 +25,6 @@
     "bcryptjs": "^3.0.3"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.18"
+    "tailwindcss": "^3.4.19"
   }
 }

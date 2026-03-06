@@ -2,6 +2,57 @@
 
 All notable changes to Simple Linkz will be documented in this file.
 
+## [1.2.0] - 2026-03-06
+
+### Added
+
+#### Typography Upgrade
+- Self-hosted Plus Jakarta Sans (headings) and DM Sans (body) fonts
+- New `--sl-font-display` CSS variable for display/heading typography
+- Tighter letter-spacing on headings, refined label tracking
+
+#### Toast Notification System
+- Lightweight toast notifications for user feedback on all async operations
+- Three types: success (green), error (red), info (blue)
+- Slide-in/out animations, auto-dismiss after 3 seconds, click to dismiss
+- Max 3 visible toasts, stacked bottom-right
+- Integrated into: link save/create/delete, settings save, import/export, drag reorder, favicon fetch
+
+#### Modal Animations
+- Smooth open/close transitions on all 7 modals (link, settings, tag, edit tag, confirm, icon picker)
+- Backdrop fade (200ms) with panel scale + translateY entrance (250ms cubic-bezier)
+- Reverse animation on close with guard against double-fire
+
+#### Layout Switch Transitions
+- Fade-out/fade-in transition when switching between grid, list, and cards layouts
+- 150ms fade out, swap layout, fade in with stagger
+
+#### Drag-and-Drop Visual Feedback
+- Dragged element scales to 1.05x with accent-colored shadow
+- Position-aware drop indicators (top/bottom border highlight on hovered element)
+- Brief scale pulse animation on successful drop
+- "Order saved" toast on reorder completion
+
+#### Empty State Enhancement
+- SVG link illustration replacing plain text
+- Two-line text hierarchy with larger "No links yet" heading
+- Clickable "Add your first link" CTA button styled with accent color
+- Fade-in animation on render
+
+#### Loading State Indicators
+- CSS spinner on save buttons during API calls
+- Button disabled during save to prevent double-submission
+- "Fetching favicons..." / "Favicons updated" toast feedback
+
+### Fixed
+
+- Import failing when JSON contains legacy named accent colors (e.g., `"pink"` instead of `"#ec4899"`)
+- Added `normalizeAccentColor()` to convert legacy named colors to hex on both save and import
+- `validThemePresets` list in save/import endpoints was missing 12 of 20 theme presets (added cherry, mocha, teal, blush, sapphire, mint, rose, storm, sunset, olive, paper, graphite)
+- Replaced `alert()` calls in import error handling with toast notifications
+
+---
+
 ## [1.1.0] - 2025-12-07
 
 ### Added
@@ -166,5 +217,6 @@ New fields on link objects:
 
 ---
 
+[1.2.0]: https://github.com/jparkerweb/simple-linkz/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/jparkerweb/simple-linkz/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/jparkerweb/simple-linkz/releases/tag/v1.0.0

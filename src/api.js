@@ -532,7 +532,9 @@ async function handleSavePreferences(req, res) {
     // Validate preferences
     const validLayouts = ['grid', 'list', 'cards'];
     const validThemePresets = [
-      'midnight', 'slate', 'ocean', 'forest', 'ember', 'lavender', 'sand', 'arctic'
+      'midnight', 'slate', 'ocean', 'forest', 'ember', 'lavender', 'sand', 'arctic',
+      'cherry', 'mocha', 'teal', 'blush', 'sapphire', 'mint', 'rose', 'storm',
+      'sunset', 'olive', 'paper', 'graphite'
     ];
     const validBackgrounds = [
       // Light colors
@@ -542,6 +544,11 @@ async function handleSavePreferences(req, res) {
       // Legacy colors (for backwards compatibility)
       'gray', 'zinc', 'cyan', 'lime', 'olive', 'burgundy'
     ];
+
+    // Normalize legacy named accent colors to hex
+    if (preferences.accentColor) {
+      preferences.accentColor = normalizeAccentColor(preferences.accentColor);
+    }
 
     if (!validLayouts.includes(preferences.layout)) {
       return sendJSON(res, 400, { success: false, error: 'Invalid layout' });
@@ -675,13 +682,20 @@ async function handleImport(req, res) {
     if (preferences) {
       const validLayouts = ['grid', 'list', 'cards'];
       const validThemePresets = [
-        'midnight', 'slate', 'ocean', 'forest', 'ember', 'lavender', 'sand', 'arctic'
+        'midnight', 'slate', 'ocean', 'forest', 'ember', 'lavender', 'sand', 'arctic',
+        'cherry', 'mocha', 'teal', 'blush', 'sapphire', 'mint', 'rose', 'storm',
+        'sunset', 'olive', 'paper', 'graphite'
       ];
       const validBackgrounds = [
         'white', 'stone', 'slate', 'sky', 'mint', 'cream', 'peach', 'rose',
         'charcoal', 'graphite', 'navy', 'ocean', 'forest', 'espresso', 'plum', 'noir',
         'gray', 'zinc', 'cyan', 'lime', 'olive', 'burgundy'
       ];
+
+      // Normalize legacy named accent colors to hex
+      if (preferences.accentColor) {
+        preferences.accentColor = normalizeAccentColor(preferences.accentColor);
+      }
 
       if (!validLayouts.includes(preferences.layout) ||
           (preferences.themePreset && !validThemePresets.includes(preferences.themePreset)) ||
@@ -970,6 +984,20 @@ function removeTagFromAllLinks(data, tagId) {
  */
 function isValidHexColor(color) {
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(color);
+}
+
+/**
+ * Legacy named accent colors from older versions - convert to hex
+ */
+const LEGACY_ACCENT_COLORS = {
+  blue: '#3b82f6', green: '#22c55e', purple: '#a855f7', red: '#ef4444',
+  orange: '#f97316', pink: '#ec4899', cyan: '#06b6d4', yellow: '#eab308'
+};
+
+function normalizeAccentColor(color) {
+  if (!color) return color;
+  if (isValidHexColor(color)) return color;
+  return LEGACY_ACCENT_COLORS[color.toLowerCase()] || null;
 }
 
 /**
